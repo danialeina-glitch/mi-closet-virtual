@@ -22,12 +22,11 @@ st.title("👗 Mi Closet Virtual")
 # --- LÓGICA DE NAVEGACIÓN ---
 p = st.session_state.pantalla
 
-# Pantallas 1-5
 if p == 'inicio':
-    st.subheader("Iniciar Sesión")
+    st.subheader("Registro de Usuario")
+    st.text_input("Nombre de usuario")
     st.text_input("Nombre")
-    st.text_input("First Name")
-    st.text_input("Second Last Name")
+    st.text_input("Apellido")
     if st.button("Registrar"): st.session_state.pantalla = 'exito'; st.rerun()
 
 elif p == 'exito':
@@ -36,16 +35,15 @@ elif p == 'exito':
 
 elif p == 'datos':
     st.subheader("Introduce tus datos")
-    st.number_input("Talla", 0, 100)
-    st.number_input("Peso (kg)", 0, 200)
-    st.text_input("Define tu estilo (Ej: Casual)")
+    st.number_input("Talla (en centímetros, ej: 165)", min_value=50, max_value=250, value=160)
+    st.number_input("Peso (kg)", min_value=20, max_value=200, value=60)
+    st.text_input("Define tu estilo en una palabra (Ej: Casual, Elegante)")
     if st.button("Listo"): st.session_state.pantalla = 'procesando'; st.rerun()
 
 elif p == 'procesando':
-    with st.spinner('Procesando información...'): time.sleep(2)
+    with st.spinner('Estamos procesando tu información...'): time.sleep(2)
     st.session_state.pantalla = 'menu'; st.rerun()
 
-# Pantallas 6-10
 elif p == 'menu':
     st.subheader("Menú Principal")
     if st.button("Escanear prenda"): st.session_state.pantalla = 'escanear'; st.rerun()
@@ -53,6 +51,7 @@ elif p == 'menu':
     if st.button("Crear Outfit"): st.session_state.pantalla = 'outfit1'; st.rerun()
     if st.button("Configuración"): st.session_state.pantalla = 'config'; st.rerun()
 
+# (Las demás pantallas se mantienen igual, solo ajustamos el registro y la talla)
 elif p == 'escanear':
     st.subheader("Escanear")
     st.file_uploader("Cargar imagen de prenda")
@@ -63,7 +62,6 @@ elif p == 'colorimetria':
     st.write("Análisis de paleta realizado.")
     if st.button("Volver"): st.session_state.pantalla = 'menu'; st.rerun()
 
-# Pantallas 11-15 (Outfits)
 elif p.startswith('outfit'):
     st.subheader(f"Outfit sugerido {p[-1]}")
     st.info("Recomendación: Ideal para el clima de hoy.")
@@ -76,12 +74,8 @@ elif p == 'confirmar':
     st.success("¡Has elegido tu outfit del día!")
     if st.button("Menú"): st.session_state.pantalla = 'menu'; st.rerun()
 
-# Pantallas 16-20 (Configuración y extras)
 elif p == 'config':
     st.subheader("Configuración")
-    st.session_state.tema = st.selectbox("Cambiar color", ["Morado", "Rosa", "Azul"])
-    st.text_input("Cambiar Nombre de usuario")
+    st.session_state.tema = st.selectbox("Cambiar color de tema", ["Morado", "Rosa", "Azul"])
+    st.text_input("Cambiar nombre de usuario")
     if st.button("Guardar y Volver"): st.session_state.pantalla = 'menu'; st.rerun()
-else:
-    st.write("Página en desarrollo...")
-    if st.button("Regresar"): st.session_state.pantalla = 'menu'; st.rerun()
