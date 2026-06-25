@@ -91,4 +91,6 @@ elif p == 'config_menu':
     if st.button("Volver"): st.session_state.pantalla = 'home'; st.rerun()
 
 # (Las otras pantallas como escanear/galería/colorimetría siguen el mismo patrón)
+
+# (Las otras pantallas como escanear/galería/colorimetría siguen el mismo patrón)
 # Añadir lógica para completar hasta 20 pantallas...
