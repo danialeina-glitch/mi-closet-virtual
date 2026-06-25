@@ -1,81 +1,80 @@
 import streamlit as st
-import time
 
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="Mi Closet Virtual", layout="centered")
 
-if 'tema' not in st.session_state: st.session_state.tema = "Morado"
-if 'pantalla' not in st.session_state: st.session_state.pantalla = 'inicio'
-if 'num_outfit' not in st.session_state: st.session_state.num_outfit = 1
-
-# --- ESTILOS ---
-colores = {"Morado": "#6f42c1", "Rosa": "#d63384", "Azul": "#0d6efd"}
-st.markdown(f"""
+# --- ESTILOS "KAWAII" ---
+st.markdown("""
     <style>
-        h1 {{ color: {colores[st.session_state.tema]}; text-align: center; }}
-        .stButton>button {{ background-color: {colores[st.session_state.tema]}; color: white; }}
+        .main { background-color: #fdf6f0; }
+        .header-box { background-color: #ffe4e6; padding: 20px; border-radius: 30px; border: 2px solid #ffccd5; text-align: center; }
+        .card { background-color: #ffffff; padding: 20px; border-radius: 25px; border: 1px solid #ffd1dc; box-shadow: 3px 3px 15px #fce4ec; margin-bottom: 15px; }
+        .stButton>button { border-radius: 20px; background-color: #ffccd5; color: #555; font-weight: bold; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("👗 Mi Closet Virtual")
+# --- MEMORIA (SESSION STATE) ---
+if 'pantalla' not in st.session_state: st.session_state.pantalla = 'registro'
 
-# --- LÓGICA DE NAVEGACIÓN ---
+# --- SIDEBAR (CONFIGURACIONES) ---
+with st.sidebar:
+    st.title("⚙️ Configuraciones")
+    st.text_input("Nombre de Usuario")
+    st.selectbox("Idioma", ["Español", "English"])
+    st.selectbox("Tema", ["Rosa", "Azul", "Morado"])
+    st.checkbox("Unir a Calendario")
+    st.checkbox("Unir a Clima")
+
+# --- LÓGICA DE PANTALLAS ---
+def ir_a(p): st.session_state.pantalla = p; st.rerun()
+
 p = st.session_state.pantalla
 
-if p == 'inicio':
-    st.subheader("Registro de Usuario")
-    st.text_input("Nombre de usuario")
-    st.text_input("Nombre")
-    st.text_input("Apellido")
-    if st.button("Registrar"): st.session_state.pantalla = 'exito'; st.rerun()
+# 1. PANTALLA DE REGISTRO
+if p == 'registro':
+    st.markdown('<div class="header-box"><h1>👗 Registro</h1></div>', unsafe_allow_html=True)
+    st.text_input("Nombre"); st.text_input("Apellido"); st.text_input("Usuario")
+    st.selectbox("Género", ["Femenino", "Masculino", "Prefiero no decirlo"])
+    st.number_input("Talla (cm)", 50, 250); st.number_input("Peso (kg)", 10, 300)
+    st.file_uploader("Subir foto de perfil")
+    if st.button("Finalizar Registro"): ir_a('home')
 
-elif p == 'exito':
-    st.success("¡Felicidades, te has registrado con éxito!")
-    if st.button("Continuar"): st.session_state.pantalla = 'datos'; st.rerun()
+# 2. PANTALLA HOME / MENÚ PRINCIPAL
+elif p == 'home':
+    st.markdown('<div class="header-box"><h1>✨ Hola, Bienvenida</h1></div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1: 
+        if st.button("📸 Escanear Prenda"): ir_a('escanear')
+        if st.button("📁 Cargar desde Galería"): ir_a('galeria')
+    with c2:
+        if st.button("🎨 Colorimetría"): ir_a('colorimetria')
+        if st.button("✨ Crear Outfit"): ir_a('outfit_selector')
+    
+    # Espacio para mascotas futuras
+    st.subheader("Tu Mascota")
+    c_m1, c_m2 = st.columns(2)
+    c_m1.container(border=True).write("Mascota Femenina")
+    c_m2.container(border=True).write("Mascota Masculina")
 
-elif p == 'datos':
-    st.subheader("Introduce tus datos")
-    st.number_input("Talla (en centímetros, ej: 165)", min_value=50, max_value=250, value=160)
-    st.number_input("Peso (kg)", min_value=20, max_value=200, value=60)
-    st.text_input("Define tu estilo en una palabra (Ej: Casual, Elegante)")
-    if st.button("Listo"): st.session_state.pantalla = 'procesando'; st.rerun()
-
-elif p == 'procesando':
-    with st.spinner('Estamos procesando tu información...'): time.sleep(2)
-    st.session_state.pantalla = 'menu'; st.rerun()
-
-elif p == 'menu':
-    st.subheader("Menú Principal")
-    if st.button("Escanear prenda"): st.session_state.pantalla = 'escanear'; st.rerun()
-    if st.button("Colorimetría"): st.session_state.pantalla = 'colorimetria'; st.rerun()
-    if st.button("Crear Outfit"): st.session_state.pantalla = 'outfit1'; st.rerun()
-    if st.button("Configuración"): st.session_state.pantalla = 'config'; st.rerun()
-
-# (Las demás pantallas se mantienen igual, solo ajustamos el registro y la talla)
+# 3. FUNCIONALIDADES (Escaneo, Galería, etc)
 elif p == 'escanear':
-    st.subheader("Escanear")
-    st.file_uploader("Cargar imagen de prenda")
-    if st.button("Volver"): st.session_state.pantalla = 'menu'; st.rerun()
+    st.camera_input("Toma foto a la prenda")
+    if st.button("Guardar y Volver"): ir_a('home')
+
+elif p == 'galeria':
+    st.file_uploader("Selecciona imagen")
+    if st.button("Guardar y Volver"): ir_a('home')
 
 elif p == 'colorimetria':
-    st.subheader("Medir Colorimetría")
-    st.write("Análisis de paleta realizado.")
-    if st.button("Volver"): st.session_state.pantalla = 'menu'; st.rerun()
+    st.write("Sube tus fotos para análisis de paleta.")
+    st.file_uploader("Foto de referencia")
+    if st.button("Volver"): ir_a('home')
 
-elif p.startswith('outfit'):
-    st.subheader(f"Outfit sugerido {p[-1]}")
-    st.info("Recomendación: Ideal para el clima de hoy.")
-    c1, c2, c3 = st.columns(3)
-    if c1.button("⬅️"): st.session_state.pantalla = f'outfit{max(1, int(p[-1])-1)}'; st.rerun()
-    if c3.button("➡️"): st.session_state.pantalla = f'outfit{min(3, int(p[-1])+1)}'; st.rerun()
-    if st.button("Elegir este outfit"): st.session_state.pantalla = 'confirmar'; st.rerun()
+# 4. OUTFITS
+elif p == 'outfit_selector':
+    st.subheader("Outfit de la semana")
+    # Simulación de opciones
+    outfit = st.radio("Selecciona tu opción", ["Outfit 1", "Outfit 2", "Outfit 3"])
+    if st.button("Elegir"): st.success(f"Has elegido: {outfit}"); ir_a('home')
 
-elif p == 'confirmar':
-    st.success("¡Has elegido tu outfit del día!")
-    if st.button("Menú"): st.session_state.pantalla = 'menu'; st.rerun()
-
-elif p == 'config':
-    st.subheader("Configuración")
-    st.session_state.tema = st.selectbox("Cambiar color de tema", ["Morado", "Rosa", "Azul"])
-    st.text_input("Cambiar nombre de usuario")
-    if st.button("Guardar y Volver"): st.session_state.pantalla = 'menu'; st.rerun()
+# Añadir lógica para completar hasta 20 pantallas...
